@@ -13,4 +13,16 @@ output:
 
 I am interested in researching the US Supreme Court and analyzing whether certain factors (i.e. race, gender, law school affiliation, ethnicity, religion, etc.) affect how the justices voted on a particular body of cases (i.e. voting rights, mass incarceration, federalism, etc.). If possible, I would focus on a certain set of cases that belong to a certain category and try to understand which factors serve as useful proxies for how they would vote on a case. It would be interesting for a number of reasons because using a factor like race is interesting because only 5 justices have been racial minorities while only 6 women have been justices. 
 
+## Research proposal
+
+My research question is:
+Is the outcome of  criminal procedure and civil rights cases affected by the time period in which they were decided?
+
+My hypothesis is that, including factors such as court alignment and political trends, the outcome of criminal procedure cases has been generally conservative starting with the War On Drugs in the 1970s. I think that due to the political War on Drugs and the associated movement to include conservative justices, the Court handed down especially conservative decisions during the 70s, 80s, and early 90s. Additionally, I think there was a liberal shift in criminal procedure outcomes during the late 50s and 60s when the progressive Warren Court was handing down iconic liberal decisions. I expect to see the most conservative criminal cases decided during the peak of the War on Drugs period. Similarly, with civil rights, I expect the most liberal cases to be decided in the 60s and more conservative decisions both before the 60s and after that period. 
+
+The explanatory variable is issueArea, which indicates the general substantive area that the case deals with. In this database, '1' signifies all cases dealing with criminal procedure, '2' signifies all cases dealing with civil rights, '3' signifies all cases dealing with the first Amendment, and so on. The outcome variable is decisionDirection, which assigns a number (1,2 or 3) to each case. '1' means the outcome aligns with conservative ideology while '2' means the outcome aligns with liberal ideology. The database makes assumptions about what constitutes liberal outcomes (pro-defendant, pro- civil liberties, pro-affirmative action, pro-choice, etc.) or conservative outcomes (the opposite of the liberal outcomes).
+
+The result I am looking for my criminal case  hypothesis is a peak around the 70s - early 90s. What this means is a negative association between time and decisionDirection up until the 70s, and a slightly positive association after the 90s. For the civil rights case, I expect a negative association during the 1960s and a slightly negative or slightly positive association thereafter. If my predicted trends do not match the actual outcome directions of the cases, then my hypothesis would be disproved. 
+
+
 
