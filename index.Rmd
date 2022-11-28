@@ -7,7 +7,13 @@ output:
     self_contained: false
 ---
 
-
+```{r setup, include = FALSE}
+options(width = 100)
+library("ggplot2")
+library("dplyr")
+library("infer")
+library("tibble")
+```
 
 ## Project thoughts
 
@@ -24,5 +30,40 @@ The explanatory variable is issueArea, which indicates the general substantive a
 
 The result I am looking for my criminal case  hypothesis is a peak around the 70s - early 90s. What this means is a negative association between time and decisionDirection up until the 70s, and a slightly positive association after the 90s. For the civil rights case, I expect a negative association during the 1960s and a slightly negative or slightly positive association thereafter. If my predicted trends do not match the actual outcome directions of the cases, then my hypothesis would be disproved. 
 
+## Data Visualization
 
+```{r}
+library(readr)
+scotus <- read_csv("~/Downloads/SCDB_2022_01_caseCentered_LegalProvision.csv")
+scotus <- subset(scotus, decisionDirection == c(1,2))
+avg_decision_term <- scotus |>
+  group_by(term, issueArea) |>
+  summarize(avg_decision = mean(decisionDirection))
+avg_decision_term
+
+avg_decision_term |>
+  filter(issueArea == c(1,2)) |>
+  ggplot(mapping = aes(x = term,
+                       y = avg_decision,
+                       color = issueArea)) +
+  geom_point(aes(color = factor(issueArea))) +
+  geom_smooth(aes(color = factor(issueArea))) +
+  labs(title = "Relationship between Term and Average Ideology of Cases Decided",
+       x = "Term (Year)",
+       y = "Average Ideology of Decision",
+       caption = "1 Represents Criminal Procedure Cases, 2 Represents Civil Rights Cases") +
+  ylim(1, 2) +
+  xlim(1946, 2021)
+```
+```{r}
+scotus |>
+  filter(issueArea == 2) |>
+  mutate(civilrights = case_when(term < 1954 ~ "Pre-Civil Rights",
+                                 term >= 1954 & term <= 1968 ~ "Civil Rights",
+                                 term > 1968 ~ "Post-Civil Rights")) |>
+  group_by(civilrights) |>
+  summarize(avg_decison = mean(decisionDirection)) |>
+  knitr::kable(digits = 3)
+```
+From this table, it shows that cases decided during the Civil Rights Movement (1954-1968) were, on average, had liberal outcomes than those decided both before and after the civil rights movement. In fact, cases decided post-Civil Rights movement has more conservative outcomes than during the Civil Rights Movement on average.
 

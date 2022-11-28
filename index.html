@@ -115,7 +115,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/header-attrs-2.16/header-attrs.js","index_files/header-attrs-2.17/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["index_files/anchor-4.2.2/anchor.min.js","index_files/bowser-1.9.3/bowser.min.js","index_files/distill-2.2.21/template.v2.js","index_files/figure-html5/unnamed-chunk-1-1.png","index_files/header-attrs-2.16/header-attrs.js","index_files/header-attrs-2.17/header-attrs.js","index_files/jquery-3.6.0/jquery-3.6.0.js","index_files/jquery-3.6.0/jquery-3.6.0.min.js","index_files/jquery-3.6.0/jquery-3.6.0.min.map","index_files/popper-2.6.0/popper.min.js","index_files/tippy-6.2.7/tippy-bundle.umd.min.js","index_files/tippy-6.2.7/tippy-light-border.css","index_files/tippy-6.2.7/tippy.css","index_files/tippy-6.2.7/tippy.umd.min.js","index_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
   <!--/radix_placeholder_navigation_in_header-->
@@ -1525,7 +1525,85 @@ Is the outcome of criminal procedure and civil rights cases affected by the time
 <p>My hypothesis is that, including factors such as court alignment and political trends, the outcome of criminal procedure cases has been generally conservative starting with the War On Drugs in the 1970s. I think that due to the political War on Drugs and the associated movement to include conservative justices, the Court handed down especially conservative decisions during the 70s, 80s, and early 90s. Additionally, I think there was a liberal shift in criminal procedure outcomes during the late 50s and 60s when the progressive Warren Court was handing down iconic liberal decisions. I expect to see the most conservative criminal cases decided during the peak of the War on Drugs period. Similarly, with civil rights, I expect the most liberal cases to be decided in the 60s and more conservative decisions both before the 60s and after that period.</p>
 <p>The explanatory variable is issueArea, which indicates the general substantive area that the case deals with. In this database, ‘1’ signifies all cases dealing with criminal procedure, ‘2’ signifies all cases dealing with civil rights, ‘3’ signifies all cases dealing with the first Amendment, and so on. The outcome variable is decisionDirection, which assigns a number (1,2 or 3) to each case. ‘1’ means the outcome aligns with conservative ideology while ‘2’ means the outcome aligns with liberal ideology. The database makes assumptions about what constitutes liberal outcomes (pro-defendant, pro- civil liberties, pro-affirmative action, pro-choice, etc.) or conservative outcomes (the opposite of the liberal outcomes).</p>
 <p>The result I am looking for my criminal case hypothesis is a peak around the 70s - early 90s. What this means is a negative association between time and decisionDirection up until the 70s, and a slightly positive association after the 90s. For the civil rights case, I expect a negative association during the 1960s and a slightly negative or slightly positive association thereafter. If my predicted trends do not match the actual outcome directions of the cases, then my hypothesis would be disproved.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="data-visualization">Data Visualization</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://readr.tidyverse.org'>readr</a></span><span class='op'>)</span></span>
+<span><span class='va'>scotus</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='op'>(</span><span class='st'>"~/Downloads/SCDB_2022_01_caseCentered_LegalProvision.csv"</span><span class='op'>)</span></span>
+<span><span class='va'>scotus</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>scotus</span>, <span class='va'>decisionDirection</span> <span class='op'>==</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span></span>
+<span><span class='va'>avg_decision_term</span> <span class='op'>&lt;-</span> <span class='va'>scotus</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>term</span>, <span class='va'>issueArea</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>avg_decision <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>decisionDirection</span><span class='op'>)</span><span class='op'>)</span></span>
+<span><span class='va'>avg_decision_term</span></span></code></pre>
+</div>
+<pre><code># A tibble: 738 × 3
+# Groups:   term [76]
+    term issueArea avg_decision
+   &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt;
+ 1  1946         1         1.09
+ 2  1946         2         1.2 
+ 3  1946         3         1.2 
+ 4  1946         4         1.7 
+ 5  1946         5         1   
+ 6  1946         7         1.38
+ 7  1946         8         1.80
+ 8  1946         9         1.5 
+ 9  1946        10         1.75
+10  1946        12         1.71
+# … with 728 more rows</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>avg_decision_term</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>issueArea</span> <span class='op'>==</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span><span class='op'>(</span>mapping <span class='op'>=</span> <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>term</span>,</span>
+<span>                       y <span class='op'>=</span> <span class='va'>avg_decision</span>,</span>
+<span>                       color <span class='op'>=</span> <span class='va'>issueArea</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>issueArea</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></span><span class='op'>(</span><span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span><span class='op'>(</span>color <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>issueArea</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></span><span class='op'>(</span>title <span class='op'>=</span> <span class='st'>"Relationship between Term and Average Ideology of Cases Decided"</span>,</span>
+<span>       x <span class='op'>=</span> <span class='st'>"Term (Year)"</span>,</span>
+<span>       y <span class='op'>=</span> <span class='st'>"Average Ideology of Decision"</span>,</span>
+<span>       caption <span class='op'>=</span> <span class='st'>"1 Represents Criminal Procedure Cases, 2 Represents Civil Rights Cases"</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/lims.html'>ylim</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span></span>
+<span>  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/lims.html'>xlim</a></span><span class='op'>(</span><span class='fl'>1946</span>, <span class='fl'>2021</span><span class='op'>)</span></span></code></pre>
+</div>
+<p><img src="index_files/figure-html5/unnamed-chunk-1-1.png" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>scotus</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>issueArea</span> <span class='op'>==</span> <span class='fl'>2</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>civilrights <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/case_when.html'>case_when</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>&lt;</span> <span class='fl'>1954</span> <span class='op'>~</span> <span class='st'>"Pre-Civil Rights"</span>,</span>
+<span>                                 <span class='va'>term</span> <span class='op'>&gt;=</span> <span class='fl'>1954</span> <span class='op'>&amp;</span> <span class='va'>term</span> <span class='op'>&lt;=</span> <span class='fl'>1968</span> <span class='op'>~</span> <span class='st'>"Civil Rights"</span>,</span>
+<span>                                 <span class='va'>term</span> <span class='op'>&gt;</span> <span class='fl'>1968</span> <span class='op'>~</span> <span class='st'>"Post-Civil Rights"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>civilrights</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>avg_decison <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>decisionDirection</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span>digits <span class='op'>=</span> <span class='fl'>3</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">civilrights</th>
+<th style="text-align: right;">avg_decison</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Civil Rights</td>
+<td style="text-align: right;">1.777</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Post-Civil Rights</td>
+<td style="text-align: right;">1.467</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pre-Civil Rights</td>
+<td style="text-align: right;">1.500</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>From this table, it shows that cases decided during the Civil Rights Movement (1954-1968) were, on average, had liberal outcomes than those decided both before and after the civil rights movement. In fact, cases decided post-Civil Rights movement has more conservative outcomes than during the Civil Rights Movement on average.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
