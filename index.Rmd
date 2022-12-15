@@ -1,7 +1,7 @@
 ---
-title: "US Supreme Court"
+title: "The Relationship between the US Supreme Court and the Civil Rights Movement & War on Drugs"
 author: "Azeez Richardson"
-description: ""
+description: "An Analysis"
 output:
   distill::distill_article:
     self_contained: false
@@ -15,14 +15,72 @@ library("infer")
 library("tibble")
 ```
 
-## Project thoughts
+## Introduction
 
-I am interested in researching the US Supreme Court and analyzing whether certain factors (i.e. race, gender, law school affiliation, ethnicity, religion, etc.) affect how the justices voted on a particular body of cases (i.e. voting rights, mass incarceration, federalism, etc.). If possible, I would focus on a certain set of cases that belong to a certain category and try to understand which factors serve as useful proxies for how they would vote on a case. It would be interesting for a number of reasons because using a factor like race is interesting because only 5 justices have been racial minorities while only 6 women have been justices. 
+The U.S. Supreme Court is putatively known to be the most impartial and apolitical branch of the US Federal Government. Yet, confidence in the Supreme Court is at an all-time low and with the recent rulings from the 2021 term that dealt with abortion (*Dobbs*) and gun rights (*Bruen*), many see the Court as a political body.
 
-## Research proposal
+In this project, I wish to explore the relationship between the Court's rulings and the time period in which they were decided. Specifically, my research question is: How does the political time period in which Supreme Court cases were decided affect their outcomes as liberal or conservative? To do this, I will be looking at two political time periods in particular: The Civil Rights Movement and the War on Drugs. For simplicity purposes, I will be defining the beginning of the Civil Rights Movement as 1954, when the Court decided *Brown vs. Board of Education*, and its end in 1968 following Dr. Martin Luther King's assassination. The War on Drugs is technically an ongoing campaign but for the purposes of this project, I will define the War on Drugs as being from 1971, when President Richard Nixon declared drug abuse "public enemy number one", to 2010 following the passage of the Fair Sentencing Act of 2010 and the slow decline in the amount of incarcerated individuals in the U.S. These time periods are arbitrary but still are accurate enough to be analytically useful for this project.
 
-My research question is:
-Is the outcome of  criminal procedure and civil rights cases affected by the time period in which they were decided?
+## Data
+
+I am pulling from two databases: The Supreme Court Database from Washington University Law and the Martin-Quinn database from UMichigan. 
+
+The Supreme Court Database from Washington University Law contains data about all SCOTUS cases from 1946-2021 terms. It breaks down each case along multiple vairables, such as term, legal provision, issue, issue area, and decision outcome. For the purposes of this experiment we are only interested in the 'term', 'issueArea', and 'decisionDirection' variables. For the 'issueArea' variable, the database gives each case a value from 1-14 based on the general substantive area for the case; we are only concerned for cases valued '1', which are criminal procedure cases, and '2', which are 'civil rights' cases. 
+
+For the 'decisionDirection' variable, the database assigns each case a value of '1', which means a conservative outcome, '2', a liberal outcome, or '3', an unspecifiable outcome. For simplicity, I only selected for cases that had liberal or conservative outcomes. The database defines liberal outcomes as those that are: 
+- pro-person accused or convicted of crime, or denied a jury trial
+- pro-civil liberties or civil rights claimant, especially those exercising less protected civil rights (e.g., homosexuality)
+- pro-child or juvenile
+- pro-indigent
+- pro-Indian
+- pro-affirmative action
+- pro-neutrality in establishment clause cases
+- pro-female in abortion
+- pro-underdog
+- anti-slavery
+- incorporation of foreign territories
+- anti-government in the context of due process, except for takings clause cases where a pro-government, anti-owner vote is considered liberal except in criminal forfeiture cases or those where the taking is pro-business
+- violation of due process by exercising jurisdiction over nonresident
+- pro-attorney or governmental official in non-liability cases
+- pro-accountability and/or anti-corruption in campaign spending
+- pro-privacy vis-a-vis the 1st Amendment where the privacy invaded is that of mental incompetents
+- pro-disclosure in Freedom of Information Act issues except for employment and student records
+Conservative outcomes are cases that reach the opposite position as those of liberal outcomes.
+
+The UMichigan database contains the Martin-Quinn scores of judicial ideology that are used to determine how liberal or conservative a justice is each term. Positive values indicate more conservative votes for that justice on average while negative values indicate more liberal votes on average for that justice. The website recommends using the 'post_mn'(posterior mean) as the variable for determining the mean ideology of a justice in a given term and as such, we will only be using this variable from this dataset.
+
+This project is an example of an observational experiment because I am examining a naturally assigned treatment, that is, how justices decided cases during these time periods. Specifically, this involves a before-and-after design because I am comparing before and after the Court decided cases during these particular time periods.
+
+To examine the frequency of both civil rights and criminal procedures cases:
+```{r}
+library(readr)
+scotus <- read_csv("~/Downloads/SCDB_2022_01_caseCentered_LegalProvision.csv")
+scotus <- subset(scotus, decisionDirection == c(1,2))
+histogram1 <- scotus |>
+  ggplot(mapping = aes(x = term,
+                       color = issueArea)) +
+    geom_histogram(aes(color = factor(issueArea))) +
+  facet_wrap(~ issueArea) +
+  labs(title = "Frequency of Cases from 1946 - 2021",
+       x = "Term (Year)",
+       y = "Number of Cases",
+       caption = "1 Represents Criminal Procedure Cases, 2 Represents Civil Rights Cases")
+histogram1
+
+histogram2 <- scotus |>
+  filter(issueArea == c(1,2)) |>
+  ggplot(mapping = aes(x = term,
+                       color = issueArea)) +
+    geom_histogram(aes(color = factor(issueArea))) +
+  facet_wrap(~ issueArea) +
+  labs(title = "Frequency of Cases from 1946 - 2021",
+       x = "Term (Year)",
+       y = "Number of Cases",
+       caption = "1 Represents Criminal Procedure Cases, 2 Represents Civil Rights Cases")
+histogram2
+```
+Out of all issue areas, civil rights and civil procedure cases are accpeted by the Court the most often and only cases dealing with economic activity (8) and judicial power (9) have similar frequencies over time. The most criminal procedure cases were heard around the late 60s and again in the mid-to-late 80s. The most civil rights cases seem to be decided in the early 70s. 
+
 
 My hypothesis is that, including factors such as court alignment and political trends, the outcome of criminal procedure cases has been generally conservative starting with the War On Drugs in the 1970s. I think that due to the political War on Drugs and the associated movement to include conservative justices, the Court handed down especially conservative decisions during the 70s, 80s, and early 90s. Additionally, I think there was a liberal shift in criminal procedure outcomes during the late 50s and 60s when the progressive Warren Court was handing down iconic liberal decisions. I expect to see the most conservative criminal cases decided during the peak of the War on Drugs period. Similarly, with civil rights, I expect the most liberal cases to be decided in the 60s and more conservative decisions both before the 60s and after that period. 
 
@@ -30,18 +88,15 @@ The explanatory variable is issueArea, which indicates the general substantive a
 
 The result I am looking for my criminal case  hypothesis is a peak around the 70s - early 90s. What this means is a negative association between time and decisionDirection up until the 70s, and a slightly positive association after the 90s. For the civil rights case, I expect a negative association during the 1960s and a slightly negative or slightly positive association thereafter. If my predicted trends do not match the actual outcome directions of the cases, then my hypothesis would be disproved. 
 
-## Data Visualization
+## Results
 
 ```{r}
-library(readr)
-scotus <- read_csv("~/Downloads/SCDB_2022_01_caseCentered_LegalProvision.csv")
-scotus <- subset(scotus, decisionDirection == c(1,2))
 avg_decision_term <- scotus |>
   group_by(term, issueArea) |>
   summarize(avg_decision = mean(decisionDirection))
 avg_decision_term
 
-avg_decision_term |>
+plot1 <- avg_decision_term |>
   filter(issueArea == c(1,2)) |>
   ggplot(mapping = aes(x = term,
                        y = avg_decision,
@@ -54,9 +109,13 @@ avg_decision_term |>
        caption = "1 Represents Criminal Procedure Cases, 2 Represents Civil Rights Cases") +
   ylim(1, 2) +
   xlim(1946, 2021)
+plot1
 ```
+From this graph, we can determine that criminal procedure cases have on average more conservative outcomes than civil rights cases from the 1946 to the 2021 terms. Additionally, the outcomes for both types of cases seem to peak around the 1960s. This seems to be in line with the Warren Court, considered by many to be the most liberal court in Supreme Court history (1953-1969). It was this court that decided *Brown*, *Reynold v. Sims* (voting rights), *Miranda v. Arizona* (4th Amendment), and *Gideon v. Wainwright* (right to an attorney). Both types of cases also seem to reach a low point around the 1980s to early 1990s as the court became more conservative due to Reagan and Nixon's appointments, as well as the War on Drugs Period and decline in the Civil Rights Movement. 
+
+
 ```{r}
-scotus |>
+cr_table <- scotus |>
   filter(issueArea == 2) |>
   mutate(civilrights = case_when(term < 1954 ~ "Pre-Civil Rights",
                                  term >= 1954 & term <= 1968 ~ "Civil Rights",
@@ -64,6 +123,71 @@ scotus |>
   group_by(civilrights) |>
   summarize(avg_decison = mean(decisionDirection)) |>
   knitr::kable(digits = 3)
+cr_table
+
+cp_table <- scotus |>
+  filter(issueArea == 1) |>
+  mutate(warondrugs = case_when(term < 1971 ~ "Pre-War on Drugs",
+                                 term >= 1971 & term <= 2010 ~ "War on Drugs (Peak)",
+                                 term > 2010 ~ "Modern Era")) |>
+  group_by(warondrugs) |>
+  summarize(avg_decison = mean(decisionDirection)) |>
+  knitr::kable(digits = 3)
+cp_table
 ```
-From this table, it shows that cases decided during the Civil Rights Movement (1954-1968) were, on average, had liberal outcomes than those decided both before and after the civil rights movement. In fact, cases decided post-Civil Rights movement has more conservative outcomes than during the Civil Rights Movement on average.
+From the data, the average outcomes for civil rights cases during the Civil Rights Movement was 1.777 while the average outcomes before were 1.467 and the average outcomes after was 1.5. The Civil Rights Movement had the highest on average liberal outcomes for civil rights whiel cases decided after the civil rights movement were the most conservative on average.
+
+The average outcomes for criminal procedure cases were the most conservative during the peak of the War on Drugs period at a value of 1.359, where presidents such as Nixon, Reagan, and CLinton implemented policies that led to the exponential increase in incarcerated individuals in the US for drug offenses. The average outcomes were the most liberal prior to the War On Drugs, probably due to the Warren Court's liberal leanings on key criminal procedure cases. The outcomes decided after the peak of the War on Drugs period had an average outcome of 1.483, which is a approximately 0.13 points less conservative than the War on Drugs Period.
+
+```{r}
+library(readr)
+justices <- read_csv("~/Downloads/justices.csv")
+
+justice_ideology <- justices |>
+  ggplot(mapping = aes(x = term,
+                       y = post_mn,
+                       color = justiceName)) +
+  geom_point(aes(color = factor(justiceName))) +
+  labs(title = "Martin Quinn Score for Each Justice over the 1946-2021 Terms",
+       x = "Term (Year)",
+       y = "Mean Martin-Quinn Score")
+justice_ideology
+
+ mean_martinquinn_score <- justices |>
+  select(c(term, justiceName, post_mn)) |>
+  filter(term >= 1946) |>
+  group_by(term) |>
+  summarize(mean_score = mean(post_mn))
+ mean_martinquinn_score
+          
+regression_data <- avg_decision_term |>
+  filter(issueArea == c(1,2))  |>
+  inner_join(mean_martinquinn_score) |>
+  group_by(issueArea) |>
+  select(term, issueArea, avg_decision, mean_score)
+
+regression_data <- regression_data |>
+  mutate(warondrugs = if_else(term >= 1971 & term <= 2010, 1, 0),
+         civilrights = if_else(term >= 1954 & term <= 1968, 1, 0))
+regression_data
+
+regression <- lm(avg_decision ~ mean_score + civilrights + warondrugs, data = regression_data)
+regression
+modelsummary::modelsummary(regression,
+                           statistic = c("s.e. = {std.error}",
+                                         "p = {p.value}"),
+                           gof_map = c("nobs", "r.squared", "adj.r.squared"))
+ 
+ 
+```
+From this linear regression, the mean_score variable (the Martin Quinn Score from each term) has a coefficient of -0.15, which meant that, holding the other explanatory vairables constant, an additional point on the Martin-Quinn Score (remember, more positive numbers represent conservative judicial ideology) resulted in an average of 0.15 point decrease in the average decision variable, or a more conservative outcome. The p-value was also <0.001, indicating that this variable was highly statistically significant. The civilrights coefficient suggests that when a case was decided during the Civil Rights Movement, holding all other independent variables constant, the outcome was on average 0.1 points higher for the average decision variable, which means that it was a more liberal outcome. Its p-value was 0.030, which means this variable was also statistically significant. The warondrugs coefficient value of -0.013 meant that, holding other variables constant, a case decided during the peak of the War On Drugs period had an outcome that was on average 0.013 points lower, indicating a slightly more conservative outcome. Its p-value was 0.699, which means that the variable was not statistically significant. For the mean_score and civilrights variables, I see more of a causal effect than that for the warondrugs variable. The mean_score and civilrights variables are statistically significant and suggest that a more conservative Court would make a more conservative outcome on average. Additionally, cases decided during the Civil Rights Movement were on average had more liberal outcomes.
+
+
+## Conclusion
+
+From the results, we can deduce that the relationship between the term and the average decision indicated that criminal procedure cases had more conservative outcomes than civil rights cases for the 1946-2021 terms. Additionally, the cases for both issue areas seemed to be the most liberal during the mid-to-late 60s and the most conservative during the 80s to early 90s. These time periods seem to align with the peak of the Civil Rights Movement and the Reagan-Bush era of the War On Drugs, respectively. One limitation of this is it is not definitive whether the liberal civil rights cases are a result of the Civil Rights Movement, the liberal Warren Court, or a combination of both. Indeed, the Warren Court helped galvanize the Civil Rights Movement and the activists of the movement also put pressure on the Court for liberal rulings. Because of this, it is not possible to definitively say that these liberal rulings were because of the Civil Rights Movement. Moreover, cases decided during the War On Drugs peak were the most conservative on average and also aligns with the increasing conservatism of the Court during that time. The Burger and Rehnquist Courts were both more conservative than the Warren Court and judicial liberalism was becoming more of a minority, especially during the 80s and 90s. Therefore, it makes sense that War On Drugs cases were more conservative given the time period. However, a causal link is harder to make because it is unclear if the War On Drugs era caused justices to make more conservative rulings or if the conservative rulings were just due to a more conservative court. If there was more investigation into how the War On Drugs era affected typically liberal justices andn whether they began to vote more conservative on criminal procedure cases, it could make a causal link argument stronger.
+
+Understandably, the mean_score was the most statistically significant variable from the multiple regression. It makes sense that the ideological makeup of the court would strongly correlate with the direction of their outcomes. Still, what I found interesting was that the Civil Rights Movement was a better indicator of a more liberal outcome than the War On Drugs was of a more conservative outcome. Indeed, a case decided during the Civil Rights era was 0.1 points more liberal on average, while cases decided during the War On Drugs era were 0.013 points more conservative on average. 
+
+In addition to the aforementioned limitations/suggestions, another limitation was the omission of other variables such as the background of the justices (age, race, religion, socioeconomic status prior to the Court, etc.), which could have had a similar if not stronger effect on how case outcomes came to be. Another limitation is how the issue areas were grouped. A category like civil rights can encompass more than racial equality and includes gender rights, LGBTQ+ rights, civil liberties, etc. As such, some issues under that umbrella could be more polarizing than others and affect the average decision value for that issue area. Moreover, similar to a PSet problem in this class, just like how whether a judge having daughters affected how they voted on feminist rulings, the justices' personal encounters with people of different race or with the criminal justice system could also serve as an important variable to investigate. In the future, I would suggest that these variables be considered as well as looking possibly whether these outcomes had more to do with public opinion than these political movements (i.e. looking at poll data on civil rights stances or crime). 
 
